@@ -3,7 +3,7 @@
 
 <head>
 
-<title>Sapporo Masjid Eid Ticket Scanner</title>
+<title>Sapporo Masjid Eid Celebration Outing Scanner</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -64,7 +64,8 @@ font-size:22px;
 font-weight:bold;
 padding:18px;
 border-radius:8px;
-line-height:1.6;
+line-height:1.7;
+transition:0.2s;
 }
 
 .ok{
@@ -80,6 +81,17 @@ color:#856404;
 .error{
 background:#f8d7da;
 color:#721c24;
+}
+
+.infoBox{
+background:#f7faf9;
+border-left:4px solid #1F6F5C;
+padding:14px;
+margin-bottom:20px;
+border-radius:6px;
+font-size:14px;
+line-height:1.6;
+text-align:left;
 }
 
 footer{
@@ -100,39 +112,43 @@ color:#888;
 
 <img src="images/his-logo.png" class="logo">
 
-<h1>Eid Ticket Scanner</h1>
+<h1>Eid Celebration Outing Scanner</h1>
 
 <p>Sapporo Masjid</p>
 
 </div>
 
+<div class="infoBox">
+
+📅 Eid Celebration Outing 2026<br>
+🚌 Departure: 10:00 a.m.<br>
+📍 Sapporo Masjid<br>
+🎟 Scan participant QR ticket for check-in
+
+</div>
+
 <div id="reader"></div>
 
-<div id="result">Ready to scan ticket</div>
+<div id="result">
+
+Ready to scan ticket
+
+</div>
 
 <footer>
+
 Hokkaido Islamic Society
+
 </footer>
 
 </div>
 
 <script>
 
-const api="https://script.google.com/macros/s/AKfycbxKxqTAlEdFlSAXg9_3-10M1jOfD0k4mS3jK5s3_iHl1swa36VJ5f2zNeN1sNQh4OHcEA/exec"
+const api="https://script.google.com/macros/s/AKfycbzgJGA-tJU1c03M93uXtOvZCjTSWDOBf_2bFKxrK-z7tdcZoKXGGAXHuYgdDmERexkM/exec"
 
 let scanner
 let scanningAllowed=true
-
-/* ============================= */
-/* FORMAT BATCH TIME */
-/* ============================= */
-
-function formatBatch(batch){
-batch = Number(batch)
-if(!batch) return batch
-
-return batch + ":00 a.m."
-}
 
 /* ============================= */
 /* QR SCAN SUCCESS */
@@ -143,51 +159,81 @@ function onScanSuccess(qrText){
 if(!scanningAllowed) return
 
 scanningAllowed=false
+
 scanner.pause(true)
 
-// ✅ safer extraction
+/* EXTRACT TICKET */
+
 let match = qrText.match(/Ticket:(.*)/)
+
 let ticket = match ? match[1].trim() : null
 
 if(!ticket){
-showResult("❌ Invalid QR Code","error")
+
+showResult(
+"❌ Invalid QR Code",
+"error"
+)
+
 resumeScanner()
+
 return
+
 }
 
+/* VERIFY */
+
 fetch(api+"?qr="+encodeURIComponent(ticket))
+
 .then(r=>r.json())
+
 .then(data=>{
 
 if(data.status=="OK"){
 
 showResult(`
-✅ VALID ENTRY<br>
+
+✅ CHECK-IN SUCCESS<br><br>
+
 <strong>${data.name}</strong><br>
-Batch ${formatBatch(data.batch)}<br>
+
 Total Seats: ${data.seats}
+
 `,"ok")
 
 }
 
 else if(data.status=="USED"){
 
-showResult("⚠️ Ticket Already Used","used")
+showResult(
+"⚠️ Ticket Already Used",
+"used"
+)
 
 }
 
 else{
 
-showResult("❌ Ticket Not Found","error")
+showResult(
+"❌ Ticket Not Found",
+"error"
+)
 
 }
 
 resumeScanner()
 
 })
+
 .catch(()=>{
-showResult("❌ Network Error","error")
+
+showResult(
+"❌ Network Error",
+"error"
+)
+
 resumeScanner()
+
 })
 
 }
@@ -198,10 +244,12 @@ resumeScanner()
 
 function showResult(message,type){
 
-let box=document.getElementById("result")
+let box =
+document.getElementById("result")
 
-box.innerHTML=message
-box.className=type
+box.innerHTML = message
+
+box.className = type
 
 }
 
@@ -214,15 +262,25 @@ function resumeScanner(){
 setTimeout(()=>{
 
 try{
+
 scanner.resume()
-}catch(e){
-console.error("Scanner resume error", e)
+
+}
+catch(e){
+
+console.error(
+"Scanner resume error",
+e
+)
+
 }
 
-document.getElementById("result").innerHTML="Ready to scan ticket"
-document.getElementById("result").className=""
+document.getElementById("result").innerHTML =
+"Ready to scan ticket"
 
-scanningAllowed=true
+document.getElementById("result").className = ""
+
+scanningAllowed = true
 
 },3000)
 
@@ -234,12 +292,15 @@ scanningAllowed=true
 
 window.onload=function(){
 
-scanner=new Html5QrcodeScanner(
+scanner = new Html5QrcodeScanner(
+
 "reader",
+
 {
 fps:10,
 qrbox:{width:300,height:300}
 }
+
 )
 
 scanner.render(onScanSuccess)
