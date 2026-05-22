@@ -26,7 +26,7 @@ Participants will enjoy:
 
 ---
 
-## 🚌 Tentative Destination
+## 🚌 Destination
 
 The outing is planned to visit:
 
