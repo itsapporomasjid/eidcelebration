@@ -165,7 +165,7 @@ line-height:1.6;
 
 <div class="infoBox">
 
-📅 <b>Date:</b> Eid Day — May 27, 2026<br><br>
+📅 <b>Date:</b> Eid Day - May 27, 2026<br><br>
 
 💴 <b>Participation Fee:</b> Free<br>
 
@@ -195,6 +195,23 @@ line-height:1.6;
 Loading...
 </div>
 
+<div id="deadlineNotice" style="
+display:none;
+background:#f8d7da;
+color:#721c24;
+padding:18px;
+border-radius:8px;
+margin-bottom:20px;
+font-weight:bold;
+text-align:center;
+line-height:1.6;
+">
+🚫 Registration Closed<br>
+The application deadline was May 23, 2026 at 8:00 p.m. JST.
+</div>
+  
+
+  
 <form id="eidForm">
 
 <label>Full Name</label>
@@ -258,6 +275,43 @@ Organized by Hokkaido Islamic Society
 const api="https://script.google.com/macros/s/AKfycbzlohm6lsJdhSkGFO-rxKV69gN49KrgdqiqdNUuaW8iX8-JxQFdxiscfwWuPmo_cJX1/exec"
 
 /* ============================= */
+/* REGISTRATION DEADLINE */
+/* ============================= */
+
+function checkDeadline(){
+
+// JST = UTC+9
+const deadline = new Date("2026-05-23T20:00:00+09:00")
+
+const now = new Date()
+
+if(now >= deadline){
+
+// show closed notice
+document.getElementById("deadlineNotice").style.display = "block"
+
+// disable form
+document.getElementById("eidForm").style.display = "none"
+
+// stop loading seats
+document.getElementById("seatStatus").innerHTML = `
+<b style="color:#721c24;font-size:16px;">
+🚫 Registration Closed
+</b><br><br>
+
+Application deadline:
+May 23, 2026 — 8:00 p.m. JST
+`
+
+return true
+
+}
+
+return false
+
+}
+
+/* ============================= */
 /* TOTAL SEATS */
 /* ============================= */
 
@@ -311,7 +365,15 @@ function loadSeats(){
 
 fetch(api)
 
-.then(res=>res.json())
+.then(async res=>{
+
+let text = await res.text()
+
+console.log(text)
+
+return JSON.parse(text)
+
+})
 
 .then(data=>{
 
@@ -366,9 +428,13 @@ document.getElementById("seatStatus").innerHTML =
 
 }
 
+if(!checkDeadline()){
+
 loadSeats()
 
 setInterval(loadSeats,5000)
+
+}
 
 /* ============================= */
 /* FORM SUBMIT */
@@ -378,6 +444,10 @@ document.getElementById("eidForm")
 .addEventListener("submit",function(e){
 
 e.preventDefault()
+
+if(checkDeadline()){
+return
+}
 
 let btn =
 document.getElementById("submitBtn")
@@ -468,6 +538,16 @@ btn.innerText = "Register"
 else if(data.status=="FULL_FEMALE"){
 
 alert("Female seats are full.")
+
+btn.disabled = false
+btn.innerText = "Register"
+
+}
+else if(data.status=="CLOSED"){
+
+alert(
+"Registration has closed.\n\nDeadline: May 23, 2026 at 8:00 p.m. JST"
+)
 
 btn.disabled = false
 btn.innerText = "Register"
