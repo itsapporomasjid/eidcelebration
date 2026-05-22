@@ -212,7 +212,7 @@ The application deadline was May 23, 2026 at 8:00 p.m. JST.
   
 
   
-<form id="eidForm">
+<form id="eidForm" autocomplete="off">
 
 <label>Full Name</label>
 <input name="name" required>
@@ -491,6 +491,7 @@ Ticket:${data.qr}
 `
 
 document.body.innerHTML = `
+window.scrollTo(0,0)
 
 <div id="ticket">
 
@@ -514,8 +515,9 @@ Destination: Kamuinomori Park Camping Ground, Asahikawa
 crossorigin="anonymous"
 src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(qrData)}">
 
-<p>
-Please show this QR ticket during check-in.
+<p style="line-height:1.6;">
+Please show this QR ticket during check-in.<br>
+Arrival time: Before 9:30 a.m.
 </p>
 
 </div>
